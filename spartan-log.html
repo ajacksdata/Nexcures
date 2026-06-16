@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spartan Log — A lifting log forged for serious athletes</title>
+<meta name="description" content="Spartan Log is an opinionated iOS lifting and nutrition tracker. Phase-aware logging, honest statistics, earned tiers — all running locally on your phone. Join the TestFlight beta." />
+
+<!-- Open Graph -->
+<meta property="og:title" content="Spartan Log — Track like you train" />
+<meta property="og:description" content="An opinionated lifting and nutrition tracker for iOS. Phase-aware logging, honest statistics, a tier system you earn. No accounts. No cloud. Join the beta." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nexcures.com" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Cinzel:wght@700;900&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     SPARTAN LOG — landing page
+     Single self-contained file. Drop on any static host.
+     To capture signups: paste your form endpoint into
+     FORM_ENDPOINT near the bottom of this file.
+     ============================================================ */
+
+  :root{
+    /* base metal — the unlit forge */
+    --ash:        #0d0e11;
+    --ash-2:      #101216;
+    --anvil:      #16181e;   /* raised surfaces */
+    --anvil-2:    #1c1f26;
+    --slag:       #2a2e38;   /* borders / hairlines */
+    --slag-soft:  #21242c;
+
+    /* the temperature ladder: cold -> hot */
+    --iron:       #6f747d;
+    --steel:      #a9b6c6;
+    --quench:     #6f93b2;   /* cool steel-blue, the damascus undertone */
+    --ember:      #d9772f;   /* molten orichalcum */
+    --ember-hi:   #ecab57;   /* highlight on heated metal */
+    --ember-hot:  #f0531c;   /* the hottest point */
+
+    /* text */
+    --text:       #dfe5ec;
+    --text-dim:   #9aa2ad;
+    --text-faint: #6b727c;
+
+    --maxw: 1160px;
+    --gut: clamp(20px, 5vw, 56px);
+
+    --f-display: "Archivo", system-ui, sans-serif;
+    --f-lapidary: "Cinzel", Georgia, serif;
+    --f-body: "Hanken Grotesk", system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--ash);
+    color:var(--text);
+    font-family:var(--f-body);
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* faint ground-texture so the dark never reads as flat black */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(1100px 700px at 80% -10%, rgba(217,119,47,.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(111,147,178,.07), transparent 55%);
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  img,svg{ display:block; max-width:100%; }
+
+  .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gut); }
+
+  /* one consistent vertical rhythm for sections — avoids margin collisions */
+  .band{ position:relative; z-index:1; padding-block:clamp(72px,11vw,140px); }
+
+  .eyebrow{
+    font-family:var(--f-mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    display:inline-flex;
+    align-items:center;
+    gap:.7em;
+  }
+  .eyebrow::before{
+    content:""; width:26px; height:1px; background:var(--ember); opacity:.8;
+  }
+
+  .h-sect{
+    font-family:var(--f-display);
+    font-weight:900;
+    font-size:clamp(30px,5vw,52px);
+    line-height:.98;
+    letter-spacing:-.02em;
+    text-transform:uppercase;
+  }
+
+  .lede{ color:var(--text-dim); font-size:clamp(16px,1.7vw,19px); max-width:48ch; }
+
+  /* ============ NAV ============ */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:saturate(140%) blur(12px);
+    background:linear-gradient(to bottom, rgba(13,14,17,.92), rgba(13,14,17,.6));
+    border-bottom:1px solid var(--slag-soft);
+  }
+  .nav__inner{ display:flex; align-items:center; justify-content:space-between; height:66px; }
+  .wordmark{
+    font-family:var(--f-lapidary);
+    font-weight:900;
+    letter-spacing:.14em;
+    font-size:17px;
+    color:var(--text);
+    display:flex; align-items:center; gap:.55em;
+  }
+  .wordmark .lam{
+    color:var(--ember); font-size:1.15em; line-height:1; transform:translateY(-1px);
+  }
+  .nav__cta{
+    font-family:var(--f-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--text-dim);
+    border:1px solid var(--slag);
+    padding:9px 16px; border-radius:2px;
+    transition:border-color .25s, color .25s, background .25s;
+  }
+  .nav__cta:hover{ color:var(--ash); background:var(--ember-hi); border-color:var(--ember-hi); }
+  .nav__cta:focus-visible{ outline:2px solid var(--ember-hi); outline-offset:2px; }
+
+  /* ============ HERO ============ */
+  .hero{ padding-block:clamp(56px,9vw,104px) clamp(64px,10vw,120px); }
+  .hero__grid{
+    display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(32px,5vw,64px); align-items:center;
+  }
+  .hero h1{
+    font-family:var(--f-display);
+    font-weight:900;
+    font-size:clamp(48px,9.2vw,108px);
+    line-height:.86;
+    letter-spacing:-.035em;
+    text-transform:uppercase;
+    margin:22px 0 0;
+  }
+  .hero h1 .hot{
+    background:linear-gradient(95deg, var(--ember-hi), var(--ember) 45%, var(--ember-hot));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.lede{ margin-top:24px; }
+
+  /* signup */
+  .signup{ margin-top:34px; max-width:480px; }
+  .signup__row{ display:flex; gap:10px; }
+  .field{
+    flex:1; min-width:0;
+    background:var(--anvil); border:1px solid var(--slag);
+    color:var(--text); font-family:var(--f-body); font-size:16px;
+    padding:15px 16px; border-radius:3px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .field::placeholder{ color:var(--text-faint); }
+  .field:focus{ outline:none; border-color:var(--ember); box-shadow:0 0 0 3px rgba(217,119,47,.18); }
+
+  .btn-forge{
+    font-family:var(--f-display); font-weight:800; font-size:15px;
+    letter-spacing:.02em; text-transform:uppercase; white-space:nowrap;
+    color:#1a0f06; cursor:pointer;
+    border:none; border-radius:3px; padding:0 22px;
+    background:linear-gradient(180deg, var(--ember-hi), var(--ember));
+    box-shadow:0 1px 0 rgba(255,210,150,.4) inset, 0 8px 24px -10px rgba(240,83,28,.7);
+    transition:transform .12s ease, filter .2s, box-shadow .2s;
+  }
+  .btn-forge:hover{ filter:brightness(1.07); box-shadow:0 1px 0 rgba(255,210,150,.5) inset, 0 10px 30px -8px rgba(240,83,28,.85); }
+  .btn-forge:active{ transform:translateY(1px); }
+  .btn-forge:focus-visible{ outline:2px solid var(--ember-hi); outline-offset:3px; }
+
+  .signup__note{
+    margin-top:14px; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.08em;
+    color:var(--text-faint); text-transform:uppercase;
+    display:flex; flex-wrap:wrap; gap:6px 16px;
+  }
+  .signup__note span{ display:inline-flex; align-items:center; gap:.5em; }
+  .signup__note span::before{ content:"›"; color:var(--ember); }
+
+  .signup__msg{ margin-top:14px; font-size:14px; min-height:1.2em; }
+  .signup__msg.is-ok{ color:var(--ember-hi); }
+  .signup__msg.is-err{ color:#e8806f; }
+
+  .signup.is-sent .signup__row, .signup.is-sent .signup__note{ display:none; }
+  .signup__sent{
+    display:none; border:1px solid var(--ember); border-left-width:3px;
+    background:linear-gradient(90deg, rgba(217,119,47,.10), transparent);
+    padding:18px 20px; border-radius:3px;
+  }
+  .signup.is-sent .signup__sent{ display:block; }
+  .signup__sent strong{ font-family:var(--f-display); font-weight:800; text-transform:uppercase; letter-spacing:.02em; color:var(--ember-hi); }
+
+  /* ---- hero medallion ---- */
+  .medallion-stage{ position:relative; display:grid; place-items:center; }
+  .medallion-stage .glow{
+    position:absolute; width:78%; aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle, rgba(240,83,28,.45), rgba(217,119,47,.12) 45%, transparent 70%);
+    filter:blur(8px);
+    animation:breathe 6s ease-in-out infinite;
+  }
+  @keyframes breathe{ 0%,100%{ transform:scale(.96); opacity:.75; } 50%{ transform:scale(1.04); opacity:1; } }
+  .medallion{ position:relative; width:min(420px, 80%); height:auto; }
+  .medallion .spin{ transform-box:fill-box; transform-origin:center; animation:rotate 80s linear infinite; }
+  @keyframes rotate{ to{ transform:rotate(360deg); } }
+
+  /* ============ FEATURES ============ */
+  .feat-head{ display:flex; flex-direction:column; gap:18px; margin-bottom:clamp(38px,5vw,60px); }
+  .grid-feat{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--slag-soft); border:1px solid var(--slag-soft); border-radius:4px; overflow:hidden; }
+  .card{
+    background:var(--anvil); padding:30px 28px 34px;
+    position:relative; transition:background .3s;
+  }
+  .card:hover{ background:var(--anvil-2); }
+  .card__no{ font-family:var(--f-mono); font-size:12px; color:var(--text-faint); letter-spacing:.1em; }
+  .card__icon{ margin:18px 0 16px; color:var(--ember); }
+  .card h3{ font-family:var(--f-display); font-weight:800; font-size:20px; letter-spacing:-.01em; }
+  .card p{ margin-top:10px; color:var(--text-dim); font-size:15.5px; line-height:1.55; }
+  .card .mono-note{
+    margin-top:14px; font-family:var(--f-mono); font-size:12px; color:var(--quench);
+    border-top:1px solid var(--slag-soft); padding-top:12px; letter-spacing:.02em;
+  }
+
+  /* ============ THE FORGE / TIERS ============ */
+  .forge{ background:linear-gradient(180deg, var(--ash) 0%, #120f0f 60%, #160f0b 100%); border-block:1px solid var(--slag-soft); }
+  .forge__intro{ max-width:640px; margin:0 auto clamp(44px,6vw,72px); text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .forge__intro .eyebrow::before{ display:none; }
+  .ladder{ display:flex; flex-direction:column; gap:14px; max-width:780px; margin-inline:auto; }
+  .tier{
+    --accent:var(--iron);
+    display:grid; grid-template-columns:54px 1fr auto; align-items:center; gap:22px;
+    padding:22px 26px; border:1px solid var(--slag);
+    border-left:3px solid var(--accent);
+    background:var(--anvil);
+    border-radius:3px;
+    transition:opacity .7s ease, transform .7s ease, box-shadow .4s;
+  }
+  /* hidden state only applies once JS confirms it can reveal them */
+  .reveal-ready .tier{ opacity:0; transform:translateY(16px); }
+  .reveal-ready .tier.in{ opacity:1; transform:none; }
+  .tier:hover{ box-shadow:0 0 0 1px var(--accent), 0 16px 40px -28px var(--accent); }
+  .tier__dot{
+    width:38px; height:38px; border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--accent) 75%, white), var(--accent) 70%, color-mix(in srgb, var(--accent) 50%, black));
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .tier__name{ font-family:var(--f-display); font-weight:900; font-size:clamp(22px,3vw,30px); text-transform:uppercase; letter-spacing:-.01em; color:var(--accent); }
+  .tier__desc{ color:var(--text-dim); font-size:15px; margin-top:2px; }
+  .tier__spec{ font-family:var(--f-mono); font-size:12px; color:var(--text-faint); letter-spacing:.06em; text-align:right; }
+
+  .tier--iron{ --accent:var(--iron); }
+  .tier--steel{ --accent:#9fb1c4; }
+  .tier--damascus{ --accent:#8aa6bf; }
+  .tier--orichalcum{
+    --accent:var(--ember-hi);
+    background:linear-gradient(100deg, rgba(217,119,47,.12), var(--anvil) 60%);
+  }
+  .tier--orichalcum .tier__name{ background:linear-gradient(95deg,var(--ember-hi),var(--ember-hot)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .aristeia{
+    margin-top:clamp(40px,6vw,68px); text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .aristeia__word{ font-family:var(--f-lapidary); font-weight:900; font-size:clamp(26px,4vw,40px); letter-spacing:.05em; color:var(--ember-hi); }
+  .aristeia p{ color:var(--text-dim); max-width:46ch; font-size:15.5px; }
+
+  /* ============ PRIVACY ============ */
+  .privacy__grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(32px,5vw,72px); align-items:center; }
+  .privacy h2{ margin:18px 0 18px; }
+  .privacy ul{ list-style:none; display:flex; flex-direction:column; gap:14px; margin-top:6px; }
+  .privacy li{ display:flex; gap:14px; align-items:flex-start; color:var(--text-dim); font-size:16px; }
+  .privacy li svg{ flex:none; margin-top:3px; color:var(--ember); }
+  .privacy li b{ color:var(--text); font-weight:600; }
+  .slab{
+    background:var(--anvil); border:1px solid var(--slag); border-radius:5px; padding:30px;
+    font-family:var(--f-mono); font-size:13.5px; line-height:1.9; color:var(--text-dim);
+  }
+  .slab .k{ color:var(--quench); }
+  .slab .v{ color:var(--ember-hi); }
+  .slab .c{ color:var(--text-faint); }
+
+  /* ============ FINAL CTA ============ */
+  .final{ text-align:center; border-top:1px solid var(--slag-soft); }
+  .final h2{ font-family:var(--f-display); font-weight:900; font-size:clamp(34px,6vw,68px); line-height:.95; text-transform:uppercase; letter-spacing:-.025em; }
+  .final h2 .hot{ background:linear-gradient(95deg,var(--ember-hi),var(--ember-hot)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .final p.lede{ margin:20px auto 30px; }
+  .final .signup{ margin-inline:auto; }
+
+  /* ============ FOOTER ============ */
+  footer{ border-top:1px solid var(--slag-soft); padding-block:36px; position:relative; z-index:1; }
+  .foot__inner{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .foot__inner .wordmark{ font-size:15px; }
+  .foot__meta{ font-family:var(--f-mono); font-size:12px; color:var(--text-faint); letter-spacing:.06em; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:900px){
+    .hero__grid{ grid-template-columns:1fr; }
+    .medallion-stage{ order:-1; }
+    .medallion{ width:min(300px,62%); }
+    .grid-feat{ grid-template-columns:repeat(2,1fr); }
+    .privacy__grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width:560px){
+    body{ font-size:16px; }
+    .grid-feat{ grid-template-columns:1fr; }
+    .signup__row{ flex-direction:column; }
+    .btn-forge{ padding:15px 22px; }
+    .tier{ grid-template-columns:42px 1fr; gap:16px; padding:18px; }
+    .tier__spec{ display:none; }
+    .nav__cta{ display:none; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; scroll-behavior:auto; }
+    .tier{ opacity:1; transform:none; transition:none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <header class="nav">
+    <div class="wrap nav__inner">
+      <a class="wordmark" href="#top"><span class="lam">Λ</span>SPARTAN LOG</a>
+      <a class="nav__cta" href="#join">Join the beta</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ========== HERO ========== -->
+    <section class="band hero">
+      <div class="wrap hero__grid">
+        <div>
+          <span class="eyebrow">An opinionated training log · iOS</span>
+          <h1>Track like<br>you <span class="hot">train.</span></h1>
+          <p class="lede">Spartan Log is a lifting and nutrition tracker built by a lifter, not a startup. Phase-aware logging, statistics that tell the truth, and a tier system you actually have to earn — all running entirely on your phone.</p>
+
+          <form class="signup" id="signup-top" novalidate>
+            <div class="signup__row">
+              <input class="field" type="email" name="email" inputmode="email" autocomplete="email" placeholder="you@email.com" aria-label="Email address" required />
+              <button class="btn-forge" type="submit">Join the beta →</button>
+            </div>
+            <div class="signup__note">
+              <span>TestFlight</span><span>iOS 17+</span><span>No account needed</span>
+            </div>
+            <p class="signup__msg" role="status" aria-live="polite"></p>
+            <div class="signup__sent" role="status">
+              <strong>You're on the list.</strong><br>
+              We'll send a TestFlight invite the moment the beta opens. No spam in the meantime — that's a promise, not a setting.
+            </div>
+          </form>
+        </div>
+
+        <div class="medallion-stage" aria-hidden="true">
+          <div class="glow"></div>
+          <!-- forged Aristeia medallion -->
+          <svg class="medallion" viewBox="0 0 240 240" role="img" aria-label="Spartan Log forged medallion">
+            <defs>
+              <radialGradient id="seal" cx="42%" cy="36%" r="72%">
+                <stop offset="0%" stop-color="#3a3f49"/>
+                <stop offset="55%" stop-color="#23262e"/>
+                <stop offset="100%" stop-color="#13151a"/>
+              </radialGradient>
+              <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#5a606b"/>
+                <stop offset="50%" stop-color="#2c303a"/>
+                <stop offset="100%" stop-color="#15171c"/>
+              </linearGradient>
+              <linearGradient id="ori" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f4c277"/>
+                <stop offset="42%" stop-color="#e0902f"/>
+                <stop offset="100%" stop-color="#b5471a"/>
+              </linearGradient>
+              <radialGradient id="cglow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(240,83,28,.55)"/>
+                <stop offset="100%" stop-color="rgba(240,83,28,0)"/>
+              </radialGradient>
+              <path id="ring" d="M120,120 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0" />
+            </defs>
+
+            <!-- outer forged disc -->
+            <circle cx="120" cy="120" r="116" fill="url(#rim)"/>
+            <circle cx="120" cy="120" r="116" fill="none" stroke="#0c0d10" stroke-width="2"/>
+            <circle cx="120" cy="120" r="104" fill="url(#seal)"/>
+
+            <!-- reeded edge notches -->
+            <g class="spin" stroke="#3b404a" stroke-width="2">
+              <!-- generated marks -->
+              <g id="reeds"></g>
+            </g>
+
+            <!-- inner orichalcum rule -->
+            <circle cx="120" cy="120" r="92" fill="none" stroke="url(#ori)" stroke-width="1.5" opacity=".9"/>
+            <circle cx="120" cy="120" r="64" fill="none" stroke="#373c46" stroke-width="1"/>
+
+            <!-- curved tier text -->
+            <text font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="3.4" fill="#8b929d">
+              <textPath href="#ring" startOffset="0%">IRON · STEEL · DAMASCUS · ORICHALCUM · IRON · STEEL · DAMASCUS · ORICHALCUM · </textPath>
+            </text>
+
+            <!-- center glow + Spartan lambda -->
+            <circle cx="120" cy="122" r="46" fill="url(#cglow)"/>
+            <text x="120" y="150" text-anchor="middle" font-family="Cinzel, serif" font-weight="900" font-size="72" fill="url(#ori)">Λ</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FEATURES ========== -->
+    <section class="band" id="features">
+      <div class="wrap">
+        <div class="feat-head">
+          <span class="eyebrow">What's inside</span>
+          <h2 class="h-sect">Built for people who<br>already know the lifts</h2>
+          <p class="lede">No streak confetti, no AI coach nagging you. Just the tools a self-directed athlete actually uses, sharpened until they disappear.</p>
+        </div>
+
+        <div class="grid-feat">
+          <article class="card">
+            <div class="card__no">01</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h3l2-7 4 14 2-7h3"/><path d="M19 12h2"/></svg>
+            </div>
+            <h3>Phase-aware logging</h3>
+            <p>Your log knows the block you're in — accumulation, intensification, peak. Editable templates, set adjustments that follow the program instead of fighting it.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__no">02</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11a7 7 0 0 1 14 0v0a7 7 0 0 1-14 0Z"/><path d="M12 4V2"/><path d="m4.5 6 1 1"/><path d="M9 11h6"/></svg>
+            </div>
+            <h3>Nutrition that does the math</h3>
+            <p>Macro targets, real serving sizes, and fiber that scales with the portion. Scan a barcode and the food's already filled in.</p>
+            <div class="mono-note">barcode → Open Food Facts</div>
+          </article>
+
+          <article class="card">
+            <div class="card__no">03</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 2.5L21 6"/></svg>
+            </div>
+            <h3>Statistics you can trust</h3>
+            <p>Trends, not noise. A real regression engine reads through day-to-day scatter so you see whether the line is actually moving.</p>
+            <div class="mono-note">Theil–Sen · Mann–Kendall · 7-day avg</div>
+          </article>
+
+          <article class="card">
+            <div class="card__no">04</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V9"/><path d="M9 2h6"/><path d="m19 5 1.5-1.5"/></svg>
+            </div>
+            <h3>Rest-day advisor</h3>
+            <p>Reads your step count and your run of load days, then tells you plainly when to push and when to back off. Recovery you don't have to guess at.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__no">05</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-11a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 6.5-7 11-7 11Z"/></svg>
+            </div>
+            <h3>Built on HealthKit</h3>
+            <p>Bodyweight flows in, finished workouts flow out, and your runs and walks land as cardio — without leaving Apple's vault.</p>
+          </article>
+
+          <article class="card">
+            <div class="card__no">06</div>
+            <div class="card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </div>
+            <h3>Private by design</h3>
+            <p>Everything lives on your device. Versioned backups, an atomic restore that can't half-finish, and CSV export whenever you want out.</p>
+            <div class="mono-note">no accounts · no cloud · your data</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== THE FORGE / TIERS ========== -->
+    <section class="band forge" id="tiers">
+      <div class="wrap">
+        <div class="forge__intro">
+          <span class="eyebrow">The progression</span>
+          <h2 class="h-sect">You don't unlock tiers.<br>You forge them.</h2>
+          <p class="lede" style="text-align:center;">Consistency is the only currency. Each tier is earned through the work itself — and the metal gets harder to reach the further you go.</p>
+        </div>
+
+        <div class="ladder">
+          <div class="tier tier--iron">
+            <div class="tier__dot"></div>
+            <div><div class="tier__name">Iron</div><div class="tier__desc">Where everyone starts. Raw, unproven, full of potential.</div></div>
+            <div class="tier__spec">TIER 01</div>
+          </div>
+          <div class="tier tier--steel">
+            <div class="tier__dot"></div>
+            <div><div class="tier__name">Steel</div><div class="tier__desc">Tempered by showing up. The first sign the habit is holding.</div></div>
+            <div class="tier__spec">TIER 02</div>
+          </div>
+          <div class="tier tier--damascus">
+            <div class="tier__dot"></div>
+            <div><div class="tier__name">Damascus</div><div class="tier__desc">Forged through repetition until the pattern emerges. Few keep going this long.</div></div>
+            <div class="tier__spec">TIER 03</div>
+          </div>
+          <div class="tier tier--orichalcum">
+            <div class="tier__dot"></div>
+            <div><div class="tier__name">Orichalcum</div><div class="tier__desc">The apex metal. Legendary, and earned by almost no one. Proof of the long game.</div></div>
+            <div class="tier__spec">TIER 04</div>
+          </div>
+        </div>
+
+        <div class="aristeia">
+          <span class="eyebrow" style="justify-content:center;">Phase complete</span>
+          <div class="aristeia__word">Aristeia</div>
+          <p>Finish a full training phase and the medallion is struck — your moment of supreme effort, recorded.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PRIVACY ========== -->
+    <section class="band privacy" id="privacy">
+      <div class="wrap privacy__grid">
+        <div>
+          <span class="eyebrow">Local-first, on purpose</span>
+          <h2 class="h-sect">Your training<br>stays yours.</h2>
+          <ul>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg><span><b>No account, ever.</b> Open the app and start logging. Nothing to sign up for, nothing to forget.</span></li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg><span><b>No cloud, no tracking.</b> Your data never leaves your phone unless you export it yourself.</span></li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg><span><b>Backups that can't break.</b> Versioned, validated, and restored atomically — with a safety snapshot before anything changes.</span></li>
+            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg><span><b>Export anytime.</b> Full CSV and JSON. It's your log; leave whenever you like.</span></li>
+          </ul>
+        </div>
+        <div class="slab">
+          <span class="c"># where your data lives</span><br>
+          <span class="k">storage</span>   = <span class="v">on-device</span><br>
+          <span class="k">accounts</span>  = <span class="v">none</span><br>
+          <span class="k">network</span>   = <span class="v">barcode lookup only</span><br>
+          <span class="k">backups</span>   = <span class="v">versioned · atomic</span><br>
+          <span class="k">export</span>    = <span class="v">csv, json</span><br>
+          <span class="k">restore</span>   = <span class="v">inspect → confirm</span><br><br>
+          <span class="c"># you own every byte.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FINAL CTA ========== -->
+    <section class="band final" id="join">
+      <div class="wrap">
+        <span class="eyebrow" style="justify-content:center;">The beta opens soon</span>
+        <h2 style="margin-top:18px;">Get on the<br><span class="hot">forge list.</span></h2>
+        <p class="lede">Be first into the TestFlight build. Drop your email and we'll send the invite when it's ready.</p>
+
+        <form class="signup" id="signup-bottom" novalidate>
+          <div class="signup__row">
+            <input class="field" type="email" name="email" inputmode="email" autocomplete="email" placeholder="you@email.com" aria-label="Email address" required />
+            <button class="btn-forge" type="submit">Send my invite →</button>
+          </div>
+          <div class="signup__note" style="justify-content:center;">
+            <span>TestFlight</span><span>iOS 17+</span><span>No spam</span>
+          </div>
+          <p class="signup__msg" role="status" aria-live="polite"></p>
+          <div class="signup__sent" role="status">
+            <strong>You're on the list.</strong><br>
+            Watch your inbox for a TestFlight invite when the beta opens.
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="wrap foot__inner">
+      <a class="wordmark" href="#top"><span class="lam">Λ</span>SPARTAN LOG</a>
+      <div class="foot__meta">Beta · iOS 17+ · © <span id="yr"></span> nexcures.com</div>
+    </div>
+  </footer>
+
+<script>
+  /* =========================================================
+     CONNECT YOUR SIGNUPS
+     Paste the endpoint from your form/email service below
+     (e.g. Formspree "https://formspree.io/f/xxxxxxx",
+      Buttondown, ConvertKit, Mailchimp embedded action, etc.)
+     Leave as "" while testing — the form will still validate
+     and show the success state, but emails won't be stored.
+     ========================================================= */
+  const FORM_ENDPOINT = "";
+
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // build the reeded edge of the medallion (subtle forged notches)
+  (function reeds(){
+    const g = document.getElementById('reeds');
+    if(!g) return;
+    const cx=120, cy=120, rOuter=112, rInner=107, n=72;
+    let marks='';
+    for(let i=0;i<n;i++){
+      const a = (i/n)*Math.PI*2;
+      const x1 = cx + Math.cos(a)*rInner, y1 = cy + Math.sin(a)*rInner;
+      const x2 = cx + Math.cos(a)*rOuter, y2 = cy + Math.sin(a)*rOuter;
+      marks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+    }
+    g.innerHTML = marks;
+  })();
+
+  // reveal tiers as they heat into view
+  (function reveal(){
+    const tiers = document.querySelectorAll('.tier');
+    const ladder = document.querySelector('.ladder');
+    if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      return; // tiers stay visible by default
+    }
+    ladder.classList.add('reveal-ready');
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach((e,i)=>{
+        if(e.isIntersecting){
+          const idx = [...tiers].indexOf(e.target);
+          setTimeout(()=>e.target.classList.add('in'), idx*120);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold:.4 });
+    tiers.forEach(t=>io.observe(t));
+  })();
+
+  // signup handling — progressive, honest, accessible
+  function wireForm(form){
+    const input = form.querySelector('input[type=email]');
+    const msg = form.querySelector('.signup__msg');
+    form.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      msg.className = 'signup__msg';
+      const email = input.value.trim();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        msg.textContent = 'Enter a valid email address.';
+        msg.classList.add('is-err');
+        input.focus();
+        return;
+      }
+      const btn = form.querySelector('button');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
+
+      try{
+        if(FORM_ENDPOINT){
+          const res = await fetch(FORM_ENDPOINT, {
+            method:'POST',
+            headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+            body: JSON.stringify({ email, source:'spartan-log-landing' })
+          });
+          if(!res.ok) throw new Error('Request failed');
+        }else{
+          console.warn('[Spartan Log] FORM_ENDPOINT is empty — no email was stored. Paste your service endpoint into FORM_ENDPOINT to capture signups.');
+          await new Promise(r=>setTimeout(r,500)); // mimic latency for the preview
+        }
+        form.classList.add('is-sent');
+      }catch(err){
+        btn.disabled = false; btn.textContent = label;
+        msg.textContent = 'Something went wrong — try again in a moment.';
+        msg.classList.add('is-err');
+      }
+    });
+  }
+  document.querySelectorAll('.signup').forEach(wireForm);
+</script>
+</body>
+</html>
