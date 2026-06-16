@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nexcures — a personal lab for health, fitness & wellness software</title>
+<meta name="description" content="nexcures is a personal lab building opinionated, private-by-default software for the body — training, nutrition, recovery. Turning noisy signals into something you can act on." />
+
+<meta property="og:title" content="nexcures — a personal health & fitness software lab" />
+<meta property="og:description" content="Opinionated, private-by-default tools for training, nutrition, and recovery. Built to be lived with." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nexcures.com" />
+<meta property="og:image" content="https://nexcures.com/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<meta name="theme-color" content="#06a99b" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     nexcures — personal lab home page
+     Single self-contained file. Drop on a static host as index.html
+     EDIT POINTS are marked with  <!-- EDIT -->  through the markup:
+       · the project cards (add / remove / rename your work)
+       · the Spartan Log link (currently → spartan-log.html)
+       · the contact email (currently hello@nexcures.com)
+     ============================================================ */
+
+  :root{
+    --paper:    #eef2f0;   /* cool off-white, faintly green — not warm cream */
+    --paper-2:  #e6ebe8;   /* panel tint */
+    --card:     #f6f8f7;   /* raised card */
+    --ink:      #11181b;   /* primary text, slate-black */
+    --ink-2:    #3a464b;   /* secondary */
+    --ink-3:    #6c787d;   /* muted */
+    --line:     #d2dad6;   /* hairlines / grid */
+    --pine:     #06a99b;   /* brand teal — primary accent (matches logo) */
+    --pine-deep:#036b62;   /* deeper teal for small text / hover (AA on paper) */
+    --signal:   #0fb8a8;   /* the live signal */
+    --signal-hi:#2bcfbf;
+
+    --maxw: 1140px;
+    --gut: clamp(20px, 5vw, 56px);
+
+    --f-disp: "Bricolage Grotesque", system-ui, sans-serif;
+    --f-body: "Hanken Grotesk", system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--f-body);
+    font-size:17px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  a{ color:inherit; text-decoration:none; }
+  svg{ display:block; }
+
+  .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gut); }
+  .band{ position:relative; padding-block:clamp(64px,9vw,116px); }
+
+  .eyebrow{
+    font-family:var(--f-mono); font-size:11.5px; font-weight:500;
+    letter-spacing:.26em; text-transform:uppercase; color:var(--ink-3);
+    display:inline-flex; align-items:center; gap:.7em;
+  }
+  .eyebrow::before{ content:""; width:22px; height:2px; background:var(--signal); }
+
+  .h-sect{
+    font-family:var(--f-disp); font-weight:700;
+    font-size:clamp(28px,4.4vw,46px); line-height:1.02; letter-spacing:-.02em;
+  }
+  .lede{ color:var(--ink-2); font-size:clamp(16px,1.6vw,19px); max-width:54ch; }
+
+  /* ============ NAV ============ */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--paper) 82%, transparent);
+    backdrop-filter:saturate(140%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav__inner{ display:flex; align-items:center; justify-content:space-between; height:62px; }
+  .brand{ display:flex; align-items:center; }
+  .brand img{ height:30px; width:auto; display:block; }
+  .foot .brand img{ height:24px; }
+  .nav__links{ display:flex; gap:26px; align-items:center; }
+  .nav__links a{ font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); transition:color .2s; }
+  .nav__links a:hover{ color:var(--pine-deep); }
+  .nav__links a:focus-visible{ outline:2px solid var(--pine); outline-offset:3px; }
+
+  /* ============ HERO ============ */
+  .hero{ padding-block:clamp(54px,8vw,96px) 0; position:relative; }
+  .hero__grid-bg{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:46px 46px;
+    opacity:.5;
+    -webkit-mask-image:linear-gradient(to bottom, black, transparent 78%);
+    mask-image:linear-gradient(to bottom, black, transparent 78%);
+  }
+  .hero__inner{ position:relative; z-index:1; }
+  .hero h1{
+    font-family:var(--f-disp); font-weight:800;
+    font-size:clamp(38px,6.6vw,76px); line-height:.98; letter-spacing:-.035em;
+    max-width:16ch; margin:20px 0 0;
+  }
+  .hero h1 em{ font-style:normal; color:var(--pine); }
+  .hero .lede{ margin-top:24px; }
+
+  .hero__cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:32px; align-items:center; }
+  .btn{
+    font-family:var(--f-mono); font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:14px 22px; border-radius:3px; cursor:pointer; transition:transform .12s, background .2s, color .2s, border-color .2s;
+    border:1px solid transparent;
+  }
+  .btn--solid{ background:var(--pine); color:var(--ink); }
+  .btn--solid:hover{ filter:brightness(.93); }
+  .btn--ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+  .btn--ghost:hover{ border-color:var(--pine); color:var(--pine-deep); }
+  .btn:active{ transform:translateY(1px); }
+  .btn:focus-visible{ outline:2px solid var(--pine); outline-offset:3px; }
+
+  /* signal-line signature */
+  .signal-stage{ position:relative; z-index:1; margin-top:clamp(36px,5vw,64px); }
+  .signal-stage svg{ width:100%; height:auto; overflow:visible; }
+  .signal-stage .axis{ stroke:var(--line); stroke-width:1; }
+  .signal-line{ fill:none; stroke:var(--signal); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+  .signal-fill{ fill:url(#sigfill); stroke:none; }
+  .pt{ fill:var(--paper); stroke:var(--signal); stroke-width:2; }
+  .pt--last{ fill:var(--signal); stroke:none; }
+  .pulse{ fill:var(--signal); opacity:.25; }
+  .sig-label{ font-family:var(--f-mono); font-size:10px; fill:var(--ink-3); letter-spacing:.1em; }
+
+  /* draw-in */
+  .signal-line, .signal-fill{ }
+  .draw .signal-line{ stroke-dasharray:2400; stroke-dashoffset:2400; animation:draw 2.2s cubic-bezier(.16,.84,.3,1) .25s forwards; }
+  .draw .signal-fill{ opacity:0; animation:fade 1.2s ease 1.6s forwards; }
+  .draw .pt{ opacity:0; animation:fade .4s ease forwards; }
+  .draw .pt:nth-of-type(1){ animation-delay:.6s } .draw .pt:nth-of-type(2){ animation-delay:.9s }
+  .draw .pt:nth-of-type(3){ animation-delay:1.2s } .draw .pt:nth-of-type(4){ animation-delay:1.5s }
+  .draw .pt:nth-of-type(5){ animation-delay:1.8s } .draw .pt:nth-of-type(6){ animation-delay:2.1s }
+  .draw .pulse{ animation:beat 2.4s ease-in-out 2.4s infinite; }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  @keyframes fade{ to{ opacity:1; } }
+  @keyframes beat{ 0%,100%{ transform:scale(1); opacity:.25; } 50%{ transform:scale(2.4); opacity:0; } }
+
+  /* ============ PROJECTS ============ */
+  .work__head{ display:flex; flex-direction:column; gap:16px; margin-bottom:clamp(34px,4vw,52px); }
+  .projects{ display:flex; flex-direction:column; gap:16px; }
+  .project{
+    display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:clamp(22px,3vw,32px);
+    transition:border-color .25s, box-shadow .25s, transform .25s;
+  }
+  .project:hover{ border-color:var(--pine); box-shadow:0 18px 44px -30px rgba(6,169,155,.5); transform:translateY(-2px); }
+  .project__head{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .project__name{ font-family:var(--f-disp); font-weight:700; font-size:clamp(22px,2.6vw,30px); letter-spacing:-.02em; }
+  .status{
+    font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    padding:5px 10px; border-radius:99px; white-space:nowrap;
+  }
+  .status--live{ background:color-mix(in srgb, var(--signal) 18%, var(--paper)); color:var(--pine-deep); }
+  .status--building{ background:color-mix(in srgb, #d59a2e 22%, var(--paper)); color:#8a5a09; }
+  .status--idea{ background:var(--paper-2); color:var(--ink-3); }
+  .project p{ color:var(--ink-2); font-size:16px; margin-top:12px; max-width:60ch; }
+  .tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .tag{ font-family:var(--f-mono); font-size:11px; color:var(--ink-3); border:1px solid var(--line); padding:4px 9px; border-radius:3px; letter-spacing:.04em; }
+  .project__aside{ display:flex; flex-direction:column; align-items:flex-end; gap:16px; min-width:140px; }
+  .spark{ width:140px; height:40px; }
+  .spark path{ fill:none; stroke:var(--signal); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .spark .base{ stroke:var(--line); stroke-width:1; }
+  .go{ font-family:var(--f-mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pine-deep); display:inline-flex; align-items:center; gap:7px; }
+  .project:hover .go .arr{ transform:translateX(4px); }
+  .go .arr{ transition:transform .25s; }
+  .project--slot{ background:transparent; border-style:dashed; }
+  .project--slot:hover{ transform:none; box-shadow:none; }
+  .project--slot .project__name{ color:var(--ink-3); }
+
+  /* ============ ETHOS ============ */
+  .ethos{ background:var(--paper-2); border-block:1px solid var(--line); }
+  .ethos__grid{ display:grid; grid-template-columns:.85fr 1.15fr; gap:clamp(32px,5vw,72px); align-items:start; }
+  .ethos h2{ margin-top:16px; }
+  .principles{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .principle{ background:var(--paper); padding:26px 24px; }
+  .principle__no{ font-family:var(--f-mono); font-size:11px; color:var(--signal); font-weight:700; letter-spacing:.1em; }
+  .principle h3{ font-family:var(--f-disp); font-weight:700; font-size:19px; margin:12px 0 8px; letter-spacing:-.01em; }
+  .principle p{ color:var(--ink-2); font-size:14.5px; line-height:1.55; }
+
+  /* ============ CONTACT ============ */
+  .contact{ text-align:center; }
+  .contact h2{ font-family:var(--f-disp); font-weight:800; font-size:clamp(30px,5vw,52px); letter-spacing:-.03em; line-height:1; }
+  .contact .lede{ margin:18px auto 30px; }
+  .contact__row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  /* ============ FOOTER ============ */
+  footer{ border-top:1px solid var(--line); padding-block:30px; }
+  .foot{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+  .foot .brand{ font-size:15px; }
+  .foot__meta{ font-family:var(--f-mono); font-size:11.5px; color:var(--ink-3); letter-spacing:.06em; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:860px){
+    .ethos__grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width:680px){
+    .project{ grid-template-columns:1fr; }
+    .project__aside{ align-items:flex-start; flex-direction:row; justify-content:space-between; width:100%; min-width:0; }
+    .principles{ grid-template-columns:1fr; }
+    .nav__links a:not(.nav__cta){ display:none; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; scroll-behavior:auto; }
+    .draw .signal-line{ stroke-dashoffset:0; }
+    .draw .signal-fill,.draw .pt{ opacity:1; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <header class="nav">
+    <div class="wrap nav__inner">
+      <a class="brand" href="#top">
+        <img src="logo-nexcures.png" alt="Nexcures" />
+      </a>
+      <nav class="nav__links">
+        <a href="#work">Work</a>
+        <a href="#ethos">Approach</a>
+        <a class="nav__cta" href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ========== HERO ========== -->
+    <section class="band hero">
+      <div class="hero__grid-bg"></div>
+      <div class="wrap hero__inner">
+        <span class="eyebrow">Personal lab · health / fitness / wellness</span>
+        <h1>Health tools, built the way I'd <em>actually use</em> them.</h1>
+        <p class="lede">nexcures is where I build software for the body — training, nutrition, recovery. Opinionated, private by default, and obsessed with turning noisy signals into something you can act on.</p>
+        <div class="hero__cta">
+          <a class="btn btn--solid" href="#work">See the work</a>
+          <a class="btn btn--ghost" href="#ethos">How I build</a>
+        </div>
+      </div>
+
+      <!-- signature: the signal line -->
+      <div class="wrap signal-stage draw" aria-hidden="true">
+        <svg viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="sigfill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0fb8a8" stop-opacity=".16"/>
+              <stop offset="100%" stop-color="#0fb8a8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- baseline -->
+          <line class="axis" x1="0" y1="170" x2="1200" y2="170"/>
+          <text class="sig-label" x="2" y="190">BASELINE</text>
+          <text class="sig-label" x="1120" y="190">TODAY →</text>
+          <!-- area fill under the trend -->
+          <path class="signal-fill" d="M0,150 C120,150 180,120 260,118 C360,116 380,96 470,70 C520,56 540,150 600,150 C620,150 640,40 690,40 C760,40 800,84 900,78 C1010,72 1060,46 1200,30 L1200,170 L0,170 Z"/>
+          <!-- the trend + one pulse spike -->
+          <path class="signal-line" d="M0,150 C120,150 180,120 260,118 C360,116 380,96 470,70 C520,56 540,150 600,150 C620,150 640,40 690,40 C760,40 800,84 900,78 C1010,72 1060,46 1200,30"/>
+          <!-- data points -->
+          <circle class="pt" cx="0" cy="150" r="4"/>
+          <circle class="pt" cx="260" cy="118" r="4"/>
+          <circle class="pt" cx="470" cy="70" r="4"/>
+          <circle class="pt" cx="690" cy="40" r="4"/>
+          <circle class="pt" cx="900" cy="78" r="4"/>
+          <circle class="pt pt--last" cx="1200" cy="30" r="5.5"/>
+          <circle class="pulse" cx="1200" cy="30" r="6"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ========== WORK / PROJECTS ========== -->
+    <section class="band" id="work">
+      <div class="wrap">
+        <div class="work__head">
+          <span class="eyebrow">On the bench</span>
+          <h2 class="h-sect">What I'm building.</h2>
+          <p class="lede">Each project is a tool I wanted to exist. They share a spine: measure honestly, keep your data yours, and earn the user's trust before asking for anything.</p>
+        </div>
+
+        <div class="projects">
+
+          <!-- EDIT: featured project — links to the Spartan Log page you already have -->
+          <a class="project" href="spartan-log.html">
+            <div class="project__body">
+              <div class="project__head">
+                <span class="project__name">Spartan Log</span>
+                <span class="status status--live">Beta · iOS</span>
+              </div>
+              <p>An opinionated lifting and nutrition tracker. Phase-aware logging, honest statistics, and a tier system you earn — all running entirely on your phone.</p>
+              <div class="tags">
+                <span class="tag">iOS · SwiftUI</span>
+                <span class="tag">Local-first</span>
+                <span class="tag">HealthKit</span>
+                <span class="tag">Nutrition</span>
+              </div>
+            </div>
+            <div class="project__aside">
+              <svg class="spark" viewBox="0 0 140 40" aria-hidden="true">
+                <line class="base" x1="0" y1="38" x2="140" y2="38"/>
+                <path d="M2,34 L22,30 L42,32 L62,22 L82,24 L102,12 L122,9 L138,3"/>
+              </svg>
+              <span class="go">View<span class="arr">→</span></span>
+            </div>
+          </a>
+
+          <!-- EDIT: duplicate this block for each new project. Change status to
+               status--building (amber) or status--idea (grey) as appropriate.
+               Delete the slots below once you have real projects to show. -->
+          <div class="project project--slot">
+            <div class="project__body">
+              <div class="project__head">
+                <span class="project__name">In the works</span>
+                <span class="status status--building">Building</span>
+              </div>
+              <p>The next tool is taking shape. This page grows as the work does — new builds land here when they're ready to be used, not before.</p>
+            </div>
+            <div class="project__aside">
+              <svg class="spark" viewBox="0 0 140 40" aria-hidden="true">
+                <line class="base" x1="0" y1="38" x2="140" y2="38"/>
+                <path d="M2,28 L22,24 L42,27 L62,18 L82,22 L102,16 L122,14 L138,11" stroke-dasharray="3 4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="project project--slot">
+            <div class="project__body">
+              <div class="project__head">
+                <span class="project__name">On the list</span>
+                <span class="status status--idea">Concept</span>
+              </div>
+              <p>Ideas worth chasing in recovery, sleep, and longevity. Notebooks full of them; the good ones make it here eventually.</p>
+            </div>
+            <div class="project__aside">
+              <svg class="spark" viewBox="0 0 140 40" aria-hidden="true">
+                <line class="base" x1="0" y1="38" x2="140" y2="38"/>
+                <path d="M2,30 L22,31 L42,28 L62,30 L82,27 L102,29 L122,26 L138,27" stroke-dasharray="2 4" opacity=".6"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ETHOS ========== -->
+    <section class="band ethos" id="ethos">
+      <div class="wrap ethos__grid">
+        <div>
+          <span class="eyebrow">The through-line</span>
+          <h2 class="h-sect">A few rules<br>everything follows.</h2>
+          <p class="lede" style="margin-top:18px;">I'm one person building tools I use myself, every day. That keeps the list of priorities short and honest.</p>
+        </div>
+        <div class="principles">
+          <div class="principle">
+            <div class="principle__no">01</div>
+            <h3>Private by default</h3>
+            <p>Your data stays on your device. No accounts to create, nothing harvested, nothing sold. Export it and walk away whenever you like.</p>
+          </div>
+          <div class="principle">
+            <div class="principle__no">02</div>
+            <h3>Measure, don't guess</h3>
+            <p>Real statistics and honest trends over vanity streaks. If a number is noisy, the app says so instead of dressing it up.</p>
+          </div>
+          <div class="principle">
+            <div class="principle__no">03</div>
+            <h3>Opinionated on purpose</h3>
+            <p>Built for people who already take this seriously. Fewer settings, stronger defaults, no hand-holding you didn't ask for.</p>
+          </div>
+          <div class="principle">
+            <div class="principle__no">04</div>
+            <h3>Made to be lived with</h3>
+            <p>Tools earn their place by surviving daily use. If I wouldn't reach for it tomorrow morning, it doesn't ship.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CONTACT ========== -->
+    <section class="band contact" id="contact">
+      <div class="wrap">
+        <span class="eyebrow" style="justify-content:center;">Get in touch</span>
+        <h2 style="margin-top:18px;">Building in this space too?</h2>
+        <p class="lede">Whether you want a heads-up when the next tool ships, or you're working on something adjacent — say hello.</p>
+        <div class="contact__row">
+          <!-- EDIT: change this email to wherever you want to be reached -->
+          <a class="btn btn--solid" href="mailto:hello@nexcures.com">hello@nexcures.com</a>
+          <a class="btn btn--ghost" href="spartan-log.html">Try Spartan Log</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="wrap foot">
+      <a class="brand" href="#top">
+        <img src="logo-nexcures.png" alt="Nexcures" />
+      </a>
+      <div class="foot__meta">A personal lab · © <span id="yr"></span> nexcures.com</div>
+    </div>
+  </footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
